@@ -8,8 +8,8 @@ import requests
 import pandas as pd
 from functools import lru_cache
 
-__author__ = 'myh '
-__date__ = '2023/5/22 '
+__author__ = "myh "
+__date__ = "2023/5/22 "
 
 
 def stock_zh_a_spot_em() -> pd.DataFrame:
@@ -78,7 +78,7 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
         "每股净资产",
         "市盈率静",
         "市盈率TTM",
-        "报告期"
+        "报告期",
     ]
     temp_df = temp_df[
         [
@@ -121,7 +121,7 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
             "总市值",
             "流通市值",
             "所处行业",
-            "上市时间"
+            "上市时间",
         ]
     ]
     temp_df["最新价"] = pd.to_numeric(temp_df["最新价"], errors="coerce")
@@ -155,12 +155,12 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
     temp_df["营业收入同比增长"] = pd.to_numeric(temp_df["营业收入同比增长"], errors="coerce")
     temp_df["归属净利润"] = pd.to_numeric(temp_df["归属净利润"], errors="coerce")
     temp_df["归属净利润同比增长"] = pd.to_numeric(temp_df["归属净利润同比增长"], errors="coerce")
-    temp_df["报告期"] = pd.to_datetime(temp_df["报告期"], format='%Y%m%d', errors="coerce")
+    temp_df["报告期"] = pd.to_datetime(temp_df["报告期"], format="%Y%m%d", errors="coerce")
     temp_df["总股本"] = pd.to_numeric(temp_df["总股本"], errors="coerce")
     temp_df["已流通股份"] = pd.to_numeric(temp_df["已流通股份"], errors="coerce")
     temp_df["总市值"] = pd.to_numeric(temp_df["总市值"], errors="coerce")
     temp_df["流通市值"] = pd.to_numeric(temp_df["流通市值"], errors="coerce")
-    temp_df["上市时间"] = pd.to_datetime(temp_df["上市时间"], format='%Y%m%d', errors="coerce")
+    temp_df["上市时间"] = pd.to_datetime(temp_df["上市时间"], format="%Y%m%d", errors="coerce")
 
     return temp_df
 
@@ -280,9 +280,7 @@ def stock_zh_a_hist(
     data_json = r.json()
     if not (data_json["data"] and data_json["data"]["klines"]):
         return pd.DataFrame()
-    temp_df = pd.DataFrame(
-        [item.split(",") for item in data_json["data"]["klines"]]
-    )
+    temp_df = pd.DataFrame([item.split(",") for item in data_json["data"]["klines"]])
     temp_df.columns = [
         "日期",
         "开盘",
@@ -336,6 +334,12 @@ def stock_zh_a_hist_min_em(
     :return: 每日分时行情
     :rtype: pandas.DataFrame
     """
+    if "_" not in start_date:
+        start_date = (
+            start_date[:4] + "-" + start_date[4:6] + "-" + start_date[6:] + " 00:00:00"
+        )
+    if "_" not in end_date:
+        end_date = end_date[:4] + "-" + end_date[4:6] + "-" + end_date[6:] + " 00:00:00"
     code_id_dict = code_id_map_em()
     adjust_map = {
         "": "0",
@@ -474,9 +478,7 @@ def stock_zh_a_hist_pre_min_em(
     }
     r = requests.get(url, params=params)
     data_json = r.json()
-    temp_df = pd.DataFrame(
-        [item.split(",") for item in data_json["data"]["trends"]]
-    )
+    temp_df = pd.DataFrame([item.split(",") for item in data_json["data"]["trends"]])
     temp_df.columns = [
         "时间",
         "开盘",
@@ -489,9 +491,7 @@ def stock_zh_a_hist_pre_min_em(
     ]
     temp_df.index = pd.to_datetime(temp_df["时间"])
     date_format = temp_df.index[0].date().isoformat()
-    temp_df = temp_df[
-        date_format + " " + start_time : date_format + " " + end_time
-    ]
+    temp_df = temp_df[date_format + " " + start_time : date_format + " " + end_time]
     temp_df.reset_index(drop=True, inplace=True)
     temp_df["开盘"] = pd.to_numeric(temp_df["开盘"])
     temp_df["收盘"] = pd.to_numeric(temp_df["收盘"])
@@ -529,9 +529,7 @@ if __name__ == "__main__":
     stock_zh_a_spot_em_df = stock_zh_a_spot_em()
     print(stock_zh_a_spot_em_df)
 
-    stock_zh_a_hist_min_em_df = stock_zh_a_hist_min_em(
-        symbol="000001", period='1'
-    )
+    stock_zh_a_hist_min_em_df = stock_zh_a_hist_min_em(symbol="000001", period="1")
     print(stock_zh_a_hist_min_em_df)
 
     stock_zh_a_hist_df = stock_zh_a_hist(
@@ -542,4 +540,3 @@ if __name__ == "__main__":
         adjust="hfq",
     )
     print(stock_zh_a_hist_df)
-

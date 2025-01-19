@@ -17,7 +17,10 @@ class MyCSVData(GenericCSVData):
     # 定义列名映射到Backtrader字段
     lines = ("datetime", "open", "close", "high", "low", "volume")
     params = (
-        ("dtformat", "%Y-%m-%d"),  # 日期格式
+        ("timeframe", bt.TimeFrame.Minutes),
+        ("compression", 1),
+        ("dtformat", "%Y-%m-%d %H:%M:%S"),  # 日期格式
+        ("tmformat", "%H:%M:%S"),  # 时间格式
         ("datetime", 0),  # 日期列索引
         ("open", 1),  # 开盘价列索引
         ("close", 2),  # 收盘价列索引
@@ -36,18 +39,12 @@ class MyStrategy(bt.Strategy):
         pass
 
 
-def main(date1, date2, code, cerebro):
+def main(cerebro):
     # cerebro = bt.Cerebro()
-
-    date_format = "%Y%m%d"
-    from_date = datetime.strptime(date1, date_format)
-    to_date = datetime.strptime(date2, date_format)
 
     # 加载数据
     data = MyCSVData(
         dataname="stock_data.csv",
-        fromdate=from_date,
-        todate=to_date,
     )
 
     # 添加数据到回测引擎
@@ -91,10 +88,8 @@ def main(date1, date2, code, cerebro):
 
 
 if __name__ == "__main__":
-    date1 = "20210830"
-    date2 = "20220830"
     cerebro = bt.Cerebro()
 
     cerebro.addstrategy(MyStrategy)
 
-    main(date1, date2, "688298", cerebro)
+    main(cerebro)

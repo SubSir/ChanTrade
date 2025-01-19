@@ -1,18 +1,20 @@
 import stock_hist_em as hist_em
+import pandas as pd
 
 
 def main(num, date1, date2):
-    df = hist_em.stock_zh_a_hist(
+    df = hist_em.stock_zh_a_hist_min_em(
         num,
-        "daily",
         date1,
         date2,
+        "5",
     )
     df.drop(columns=["成交额", "振幅", "涨跌幅", "涨跌额", "换手率"], inplace=True)
     # 重命名列以匹配Backtrader的要求
     df.rename(
         columns={
             "日期": "Date",
+            "时间": "Date",
             "开盘": "Open",
             "收盘": "Close",
             "最高": "High",
